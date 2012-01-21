@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OozieClientWrapper
+Bundle-SymbolicName: oep.client.wrapper
+Bundle-Version: 1.0.0
+Bundle-Vendor: Oozie Eclipse Plugin
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: lib/commons-cli-1.2.jar,
+ lib/json-simple-1.1.jar,
+ lib/oozie-client-3.0.2.jar,
+ .
+Export-Package: org.apache.oozie.client
