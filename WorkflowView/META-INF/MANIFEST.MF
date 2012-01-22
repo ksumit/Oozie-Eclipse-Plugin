@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Workflow Table View
+Bundle-SymbolicName: oep.views.workflow.table; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: oep.views.workflow.table.Activator
+Bundle-Vendor: Oozie Eclipse Plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ oep.client.wrapper;bundle-version="1.0.0",
+ org.eclipse.ui.ide;bundle-version="3.7.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: icons/,
+ .

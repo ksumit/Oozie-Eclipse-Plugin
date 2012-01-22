@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Oozie"
+            id="oep.views.workflow.table">
+      </category>
+      <view
+            name="Workflows"
+            icon="icons/oozie_16x.png"
+            category="oep.views.workflow.table"
+            class="oep.views.workflow.table.WorkflowTableView"
+            id="oep.views.workflow.table.WorkflowTableView">
+      </view>
+   </extension>
+
+</plugin>
