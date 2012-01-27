@@ -105,7 +105,7 @@ public class WorkflowLabelProvider extends LabelProvider implements
 			WorkflowJob jobInfo = (WorkflowJob) obj;
 
 			WorkflowJob.Status status = jobInfo.getStatus();
-			String imageName = null;
+
 			switch (status) {
 			case SUSPENDED:
 				return imgPause;

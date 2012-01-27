@@ -1,10 +1,10 @@
 package oep.views.workflow.table;
 
 import org.apache.oozie.client.OEPOozieClient;
-import org.apache.oozie.client.OozieClient;
 import org.apache.oozie.client.OozieClientException;
 import org.apache.oozie.client.WorkflowJob;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 
 /**
@@ -50,10 +50,14 @@ public class WorkflowContentProvider implements IStructuredContentProvider {
 	 * @return number of workflow item on server, or -1 if an error occurs
 	 */
 	public int getTotalItemCount() {
-		try {
-			return oozieClient.getWorkflowTotal();
-		} catch (OozieClientException oce) {
-			// TODO: Log error
+		if (oozieClient != null) {
+			try {
+				return oozieClient.getWorkflowTotal();
+			} catch (OozieClientException oce) {
+				// TODO: Log error
+				return -1;
+			}
+		} else {
 			return -1;
 		}
 	}
@@ -81,5 +85,23 @@ public class WorkflowContentProvider implements IStructuredContentProvider {
 		}
 
 		return jobs;
+	}
+
+	/**
+	 * Move the {@link #pageOffset} forward / backwards by the currently
+	 * configured {@link #pageLength}.
+	 * <p>
+	 * Note this does not trigger the parent {@link TableViewer} to refresh the
+	 * data, or use the oozie client to make a query to the server
+	 * 
+	 * @param isPageForwardAction
+	 */
+	public void movePage(boolean isPageForwardAction) {
+		pageOffset += (isPageForwardAction ? pageLength : -pageLength);
+
+		// protect against negative offsets
+		if (pageOffset < 1) {
+			pageOffset = 1;
+		}
 	}
 }

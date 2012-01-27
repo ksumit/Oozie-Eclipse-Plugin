@@ -44,10 +44,29 @@ public class WorkflowTableView extends ViewPart {
 	/** Table label provider */
 	private WorkflowLabelProvider labelProvider = new WorkflowLabelProvider();
 
+	/** Table Viewer */
 	private TableViewer viewer;
+
 	private Action action1;
 	private Action action2;
+
 	private Action doubleClickAction;
+
+	/** forward page action */
+	private Action pageForwardAction;
+
+	/** backwards page action */
+	private Action pageBackwardsAction;
+
+	/** Refresh table action */
+	private Action refreshAction;
+
+	/** Table */
+	private Table table;
+
+	private Action itemCount20Action;
+	private Action itemCount50Action;
+	private Action itemCount100Action;
 
 	class NameSorter extends ViewerSorter {
 	}
@@ -57,7 +76,6 @@ public class WorkflowTableView extends ViewPart {
 	 */
 	public WorkflowTableView() {
 		setPartName("Oozie Workflows");
-		setContentDescription("Table of Oozie Workflow jobs");
 	}
 
 	/**
@@ -71,7 +89,7 @@ public class WorkflowTableView extends ViewPart {
 		viewer.setLabelProvider(labelProvider);
 		viewer.setSorter(new NameSorter());
 
-		Table table = viewer.getTable();
+		table = viewer.getTable();
 
 		// configure column headers
 		for (WorkflowColumn colDef : WorkflowColumn.values()) {
@@ -87,6 +105,8 @@ public class WorkflowTableView extends ViewPart {
 		hookContextMenu();
 		hookDoubleClickAction();
 		contributeToActionBars();
+
+		refresh();
 	}
 
 	private void createColumn(Table table, WorkflowColumn colDef) {
@@ -110,14 +130,7 @@ public class WorkflowTableView extends ViewPart {
 
 	private void contributeToActionBars() {
 		IActionBars bars = getViewSite().getActionBars();
-		fillLocalPullDown(bars.getMenuManager());
 		fillLocalToolBar(bars.getToolBarManager());
-	}
-
-	private void fillLocalPullDown(IMenuManager manager) {
-		manager.add(action1);
-		manager.add(new Separator());
-		manager.add(action2);
 	}
 
 	private void fillContextMenu(IMenuManager manager) {
@@ -128,8 +141,9 @@ public class WorkflowTableView extends ViewPart {
 	}
 
 	private void fillLocalToolBar(IToolBarManager manager) {
-		manager.add(action1);
-		manager.add(action2);
+		manager.add(refreshAction);
+		manager.add(pageBackwardsAction);
+		manager.add(pageForwardAction);
 	}
 
 	private void makeActions() {
@@ -160,6 +174,61 @@ public class WorkflowTableView extends ViewPart {
 				showMessage("Double-click detected on " + obj.toString());
 			}
 		};
+
+		pageForwardAction = createPageAction(true);
+		pageBackwardsAction = createPageAction(false);
+
+		refreshAction = new Action("Refresh",
+				Activator.getImageDescriptor("icons/refresh_tab.gif")) {
+			@Override
+			public void run() {
+				refresh();
+			}
+		};
+
+		contentProvider.setPageLength(20);
+		contentProvider.setPageOffset(1);
+		createItemAction(20, true);
+		createItemAction(50, false);
+		createItemAction(100, false);
+	}
+
+	private void createItemAction(final int pageSize, boolean selected) {
+		Action pageSizeAction = new Action(String.format("%d items", pageSize),
+				Action.AS_RADIO_BUTTON) {
+			@Override
+			public void run() {
+				if (isChecked()) {
+					contentProvider.setPageLength(pageSize);
+					refresh();
+				}
+			}
+		};
+
+		pageSizeAction.setChecked(selected);
+
+		getViewSite().getActionBars().getMenuManager().add(pageSizeAction);
+	}
+
+	private Action createPageAction(final boolean isPageForwardAction) {
+		Action pageAction = new Action() {
+			@Override
+			public void run() {
+				contentProvider.movePage(isPageForwardAction);
+				refresh();
+			}
+		};
+
+		pageAction.setText((isPageForwardAction ? "Next" : "Previous")
+				+ " Page");
+		pageAction.setImageDescriptor(PlatformUI
+				.getWorkbench()
+				.getSharedImages()
+				.getImageDescriptor(
+						isPageForwardAction ? ISharedImages.IMG_TOOL_FORWARD
+								: ISharedImages.IMG_TOOL_BACK));
+
+		return pageAction;
 	}
 
 	private void hookDoubleClickAction() {
@@ -188,5 +257,37 @@ public class WorkflowTableView extends ViewPart {
 
 	public void setOozieUrl(String oozieUrl) {
 		this.oozieUrl = oozieUrl;
+	}
+
+	protected void refresh() {
+		// get number of items
+		int totalItems = contentProvider.getTotalItemCount();
+
+		// update actions based upon item count and current page number
+		pageBackwardsAction.setEnabled(totalItems != -1
+				&& contentProvider.pageOffset > 1);
+		pageForwardAction
+				.setEnabled(totalItems != -1
+						&& contentProvider.pageOffset
+								+ contentProvider.pageLength >= totalItems);
+
+		// update label
+		if (oozieUrl == null) {
+			setContentDescription("OOZIE Url not configured");
+			table.setEnabled(false);
+		} else if (totalItems != -1) {
+			setContentDescription("Communications Error, check problems view");
+			table.setEnabled(false);
+		} else {
+			int maxItemIdx = Math.min(totalItems, contentProvider.pageOffset
+					+ contentProvider.pageLength - 1);
+			setContentDescription(String.format(
+					"Showing Jobs %d to %d (%d in total)",
+					contentProvider.pageOffset, maxItemIdx, totalItems));
+
+			table.setEnabled(true);
+		}
+
+		viewer.refresh();
 	}
 }
