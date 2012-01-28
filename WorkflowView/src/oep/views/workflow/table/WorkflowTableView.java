@@ -1,5 +1,7 @@
 package oep.views.workflow.table;
 
+import org.apache.oozie.client.OEPOozieClient;
+import org.apache.oozie.client.OozieClient;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -58,6 +60,10 @@ public class WorkflowTableView extends ViewPart {
 	public WorkflowTableView() {
 		setPartName("Oozie Workflows");
 		setContentDescription("Table of Oozie Workflow jobs");
+
+		OEPOozieClient client = new OEPOozieClient(
+				"htt[://192.168.126.50:11000/oozie");
+		contentProvider.setOozieClient(client);
 	}
 
 	/**
