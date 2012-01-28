@@ -17,6 +17,16 @@ import org.json.simple.JSONValue;
  */
 public class OEPOozieClient extends XOozieClient {
 	/**
+	 * Constructor
+	 * 
+	 * @param oozieUrl
+	 *            Oozie URL to connect to
+	 */
+	public OEPOozieClient(String oozieUrl) {
+		super(oozieUrl);
+	}
+
+	/**
 	 * @return the total number of workflow jobs
 	 * @throws OozieClientException
 	 */
